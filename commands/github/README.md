@@ -26,3 +26,11 @@ description: Empowering everyone to build reliable and efficient software.
 The command reads the JSON command request from stdin and writes text to
 stdout. It uses the sandboxed HTTP host call; the manifest allowlists
 `https://api.github.com/repos/*` only.
+
+A prebuilt `dist/github.wasm` is checked in, so `xfetch command install github`
+does not require a Rust toolchain. Rebuild it with:
+
+```bash
+cargo build --release --target wasm32-wasip1 -p xfetch-command-github
+cp target/wasm32-wasip1/release/xfetch-command-github.wasm dist/github.wasm
+```

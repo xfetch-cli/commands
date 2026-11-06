@@ -1,3 +1,4 @@
 /target
 /dist
 *.wasm
+!commands/github/dist/*.wasm

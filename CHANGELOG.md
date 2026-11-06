@@ -2,4 +2,5 @@
 
 ## 0.1.0
 
-- Initial catalog with the `github` command addon.
+- Initial catalog with the `github` command addon, including a prebuilt
+  `dist/github.wasm` artifact.
