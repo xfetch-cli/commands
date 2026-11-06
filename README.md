@@ -35,8 +35,8 @@ xfetch run github -- https://github.com/rust-lang/rust
   <code>xfetch-command.json</code> manifest, <code>kind: "command"</code>,
   <code>runtime: "core"</code> and an HTTP/exec/fs allowlist if needed.</li>
   <li>Implement the JSON request / plain-text response protocol. Rust guests can
-  use <code>xfetch-guest-api</code>; the API repository also publishes
-  <code>xfetch-command-api</code> once released.</li>
+  use <code>xfetch-guest-api</code> 0.3.1; <code>xfetch-command-api</code> 0.3.1
+  is also available on crates.io for shared command protocol types.</li>
   <li>Build to <code>wasm32-wasip1</code>, add the catalog entry and open a PR.</li>
 </ol>
 

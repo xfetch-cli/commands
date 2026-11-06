@@ -1,11 +1,11 @@
 {
   "schema_version": 1,
-  "catalog_version": "0.1.0",
+  "catalog_version": "0.1.1",
   "entries": [
     {
       "name": "github",
       "description": "Show GitHub repository information",
-      "version": "0.1.0",
+      "version": "0.1.1",
       "kind": "command",
       "runtime": "core",
       "path": "commands/github",

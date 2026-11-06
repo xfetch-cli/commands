@@ -100,7 +100,7 @@ checksum = "a2c754d6c33795a1c324727428e5a7dedb5b06195f9890bdbcba760d3e246563"
 
 [[package]]
 name = "xfetch-command-github"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "serde",
  "serde_json",
@@ -110,7 +110,8 @@ dependencies = [
 [[package]]
 name = "xfetch-guest-api"
 version = "0.3.1"
-source = "git+https://github.com/xfetch-cli/api?branch=feat%2Fcommand-kind#dc5c9afdcfa618977296717fce2ec3472cffc9ed"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e9dcc7f00258477ae741b350cc6252f40969317f8f6e119bd83dfc0562dd72c8"
 dependencies = [
  "base64",
  "serde_json",
