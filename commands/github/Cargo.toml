@@ -1,0 +1,11 @@
+[package]
+name = "xfetch-command-github"
+version = "0.1.0"
+edition = "2024"
+license = "MIT"
+description = "Show GitHub repository information through xfetch"
+
+[dependencies]
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+xfetch-guest-api = { workspace = true }

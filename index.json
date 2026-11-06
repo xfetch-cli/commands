@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "catalog_version": "0.1.0",
+  "entries": [
+    {
+      "name": "github",
+      "description": "Show GitHub repository information",
+      "version": "0.1.0",
+      "kind": "command",
+      "runtime": "core",
+      "path": "commands/github",
+      "install": "github",
+      "repo": "https://github.com/xfetch-cli/commands.git"
+    }
+  ]
+}

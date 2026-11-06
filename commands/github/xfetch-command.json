@@ -1,0 +1,21 @@
+{
+  "manifest_version": 1,
+  "name": "github",
+  "version": "0.1.0",
+  "description": "Show GitHub repository information",
+  "kind": "command",
+  "runtime": "core",
+  "build": "cargo build --release --target wasm32-wasip1 -p xfetch-command-github",
+  "artifact": "../../target/wasm32-wasip1/release/xfetch-command-github.wasm",
+  "capabilities": {
+    "http": {
+      "allow": ["https://api.github.com/repos/*"]
+    }
+  },
+  "limits": {
+    "timeout_ms": 15000,
+    "memory_mb": 64,
+    "output_kb": 64,
+    "host_call_kb": 256
+  }
+}
