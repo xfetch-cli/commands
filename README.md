@@ -47,3 +47,11 @@ xfetch run github -- https://github.com/rust-lang/rust
   <li>Native commands are unsandboxed and trusted code.</li>
   <li>Never write logs to stdout; use stderr for diagnostics.</li>
 </ul>
+
+<h2>Licensing</h2>
+
+<p>
+  The code authored by xscriptor in this repository is GPL-3.0-only. Addons
+  and additional functionality contributed by other developers may use their
+  own licenses; see <a href="./ADDON-LICENSING.md">ADDON-LICENSING.md</a>.
+</p>
