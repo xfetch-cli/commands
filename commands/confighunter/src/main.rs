@@ -24,7 +24,7 @@ const REPO_RAW: &str = "https://raw.githubusercontent.com/xfetch-cli/configs";
 const CATALOG_PATH: &str = "configshunter/index.json";
 const INTERNAL_DIR: &str = ".confighunter";
 const HTTP_TIMEOUT_MS: u64 = 60_000;
-const USER_AGENT: &str = "xfetch-command-confighunter/0.1.0";
+const USER_AGENT: &str = concat!("xfetch-command-confighunter/", env!("CARGO_PKG_VERSION"));
 
 #[derive(Debug, Deserialize)]
 struct CommandRequest {
@@ -95,6 +95,7 @@ enum Action {
         name: String,
         branch: String,
         backup: bool,
+        progress: bool,
     },
 }
 
@@ -131,7 +132,8 @@ fn run() -> Result<(), String> {
             name,
             branch,
             backup,
-        } => install_preset_command(&name, &branch, backup),
+            progress,
+        } => install_preset_command(&name, &branch, backup, progress),
     }
 }
 
@@ -161,6 +163,7 @@ fn parse_action(args: &[String]) -> Result<Action, String> {
 
     let mut branch = DEFAULT_BRANCH.to_string();
     let mut backup = true;
+    let mut progress = true;
     let mut positional = Vec::new();
     let mut index = 1;
 
@@ -169,6 +172,7 @@ fn parse_action(args: &[String]) -> Result<Action, String> {
         match arg.as_str() {
             "-h" | "--help" => return Ok(Action::Help),
             "--no-backup" => backup = false,
+            "--no-progress" => progress = false,
             "--branch" => {
                 index += 1;
                 let value = args
@@ -219,6 +223,7 @@ fn parse_action(args: &[String]) -> Result<Action, String> {
                 name,
                 branch,
                 backup,
+                progress,
             })
         }
         other => Err(format!("unknown command '{other}'")),
@@ -231,7 +236,9 @@ fn print_help() {
     println!("usage:");
     println!("  xfetch run confighunter list [--branch <branch>]");
     println!("  xfetch run confighunter info <preset> [--branch <branch>]");
-    println!("  xfetch run confighunter install <preset> [--branch <branch>] [--no-backup]");
+    println!(
+        "  xfetch run confighunter install <preset> [--branch <branch>] [--no-backup] [--no-progress]"
+    );
     println!();
     println!("presets are read from xfetch-cli/configs/configshunter/index.json");
     println!("default branch: {DEFAULT_BRANCH}");
@@ -272,14 +279,19 @@ fn show_preset(name: &str, branch: &str) -> Result<(), String> {
     Ok(())
 }
 
-fn install_preset_command(name: &str, branch: &str, backup: bool) -> Result<(), String> {
+fn install_preset_command(
+    name: &str,
+    branch: &str,
+    backup: bool,
+    progress: bool,
+) -> Result<(), String> {
     let catalog = load_catalog(branch)?;
     let preset = find_preset(&catalog, name)?;
     let base = preset_base(branch, preset)?;
     let stamp = timestamp_ms();
     let staging = Path::new(CONFIG_ROOT).join(format!(".confighunter-staging-{stamp}"));
 
-    let result = stage_and_install(preset, &base, backup, &staging);
+    let result = stage_and_install(preset, &base, backup, progress, &staging);
     if result.is_err() {
         let _ = fs::remove_dir_all(&staging);
     }
@@ -287,7 +299,12 @@ fn install_preset_command(name: &str, branch: &str, backup: bool) -> Result<(), 
 
     println!("installed: {} {}", preset.name, preset.version);
     println!("source: {base}");
-    println!("files: {} ({})", result.files, human_bytes(result.bytes));
+    println!(
+        "files: {} ({}) {}",
+        result.files,
+        human_bytes(result.bytes),
+        progress_bar(result.files, result.files, 20)
+    );
     println!("config: ~/.config/xfetch");
     match &result.backup {
         Some(path) => println!("backup: ~/.config/xfetch/{path}"),
@@ -309,6 +326,7 @@ fn stage_and_install(
     preset: &Preset,
     base: &str,
     backup: bool,
+    progress: bool,
     staging: &Path,
 ) -> Result<InstallResult, String> {
     if staging.exists() {
@@ -320,6 +338,15 @@ fn stage_and_install(
 
     let mut targets = Vec::new();
     let mut bytes_total = 0u64;
+    let total = preset.files.len();
+    let step = (total / 20).max(1);
+
+    if progress {
+        log(
+            "warn",
+            &format!("confighunter: starting {} ({total} files)", preset.name),
+        );
+    }
 
     for (position, file) in preset.files.iter().enumerate() {
         let source = safe_rel_path(&file.source)?;
@@ -371,14 +398,10 @@ fn stage_and_install(
         targets.push(target.to_path_buf());
         bytes_total += bytes.len() as u64;
 
-        if position % 20 == 0 || position + 1 == preset.files.len() {
+        if progress && (position == 0 || (position + 1) % step == 0) && position + 1 < total {
             log(
-                "info",
-                &format!(
-                    "confighunter: downloaded {}/{}",
-                    position + 1,
-                    preset.files.len()
-                ),
+                "warn",
+                &format!("confighunter: {}", progress_bar(position + 1, total, 20)),
             );
         }
     }
@@ -422,6 +445,13 @@ fn stage_and_install(
 
     fs::remove_dir_all(staging)
         .map_err(|err| format!("cannot remove staging '{}': {err}", staging.display()))?;
+
+    if progress {
+        log(
+            "warn",
+            &format!("confighunter: {}", progress_bar(total, total, 20)),
+        );
+    }
 
     Ok(InstallResult {
         files: targets.len(),
@@ -804,6 +834,21 @@ fn timestamp_ms() -> u128 {
         .unwrap_or(0)
 }
 
+fn progress_bar(done: usize, total: usize, width: usize) -> String {
+    let width = width.max(1);
+    let done = done.min(total);
+    let filled = done
+        .saturating_mul(width)
+        .checked_div(total)
+        .unwrap_or(width);
+    let percent = done.saturating_mul(100).checked_div(total).unwrap_or(100);
+    format!(
+        "[{}{}] {done}/{total} ({percent}%)",
+        "#".repeat(filled),
+        "-".repeat(width - filled)
+    )
+}
+
 fn human_bytes(bytes: u64) -> String {
     if bytes >= 1024 * 1024 {
         format!("{:.2} MiB", bytes as f64 / (1024.0 * 1024.0))
@@ -827,6 +872,7 @@ mod tests {
                 name: "cyberpunk".to_string(),
                 branch: DEFAULT_BRANCH.to_string(),
                 backup: true,
+                progress: true,
             }
         );
         assert_eq!(
@@ -836,12 +882,14 @@ mod tests {
                 "--branch".to_string(),
                 "feat/configshunter".to_string(),
                 "--no-backup".to_string(),
+                "--no-progress".to_string(),
             ])
             .unwrap(),
             Action::Install {
                 name: "cyberpunk".to_string(),
                 branch: "feat/configshunter".to_string(),
                 backup: false,
+                progress: false,
             }
         );
     }
@@ -913,6 +961,13 @@ mod tests {
             status_list(&required, &installed),
             "banner [ok], gauges [missing]"
         );
+    }
+
+    #[test]
+    fn renders_ascii_progress_bars() {
+        assert_eq!(progress_bar(0, 10, 10), "[----------] 0/10 (0%)");
+        assert_eq!(progress_bar(5, 10, 10), "[#####-----] 5/10 (50%)");
+        assert_eq!(progress_bar(10, 10, 10), "[##########] 10/10 (100%)");
     }
 
     #[test]

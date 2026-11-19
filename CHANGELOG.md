@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.2.1
+
+- `confighunter` now prints live ASCII progress while installing and supports
+  `--no-progress` for scripted use.
+
 ## 0.2.0
 
 - Added the `confighunter` command addon, which installs complete presets from
