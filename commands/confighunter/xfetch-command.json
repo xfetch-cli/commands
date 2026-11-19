@@ -1,7 +1,7 @@
 {
   "manifest_version": 1,
   "name": "confighunter",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Install complete xfetch config presets from xfetch-cli/configs",
   "kind": "command",
   "runtime": "core",

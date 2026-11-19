@@ -22,7 +22,13 @@ Options:
 ```bash
 xfetch run confighunter install cyberpunk --branch <branch>
 xfetch run confighunter install cyberpunk --no-backup
+xfetch run confighunter install cyberpunk --no-progress
 ```
+
+The installer prints an ASCII progress bar through the host log while it
+downloads and verifies files, so it does not look frozen during the ~200
+requests. `--no-progress` disables those live lines for scripts. All progress
+and summary output is plain ASCII, with no emojis.
 
 `--branch` is useful for testing a configuration pull request before it is
 merged. The default branch is `main`.
