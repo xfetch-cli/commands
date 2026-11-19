@@ -9,6 +9,7 @@ cargo test --workspace
 
 if rustup target list --installed 2>/dev/null | grep -q '^wasm32-wasip1$'; then
   cargo build --release --target wasm32-wasip1 -p xfetch-command-github
+  cargo build --release --target wasm32-wasip1 -p xfetch-command-confighunter
 else
   echo "skip wasm build: wasm32-wasip1 target is not installed"
 fi

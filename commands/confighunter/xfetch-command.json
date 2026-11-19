@@ -1,0 +1,28 @@
+{
+  "manifest_version": 1,
+  "name": "confighunter",
+  "version": "0.1.0",
+  "description": "Install complete xfetch config presets from xfetch-cli/configs",
+  "kind": "command",
+  "runtime": "core",
+  "build": "cargo build --release --target wasm32-wasip1 -p xfetch-command-confighunter",
+  "artifact": "dist/confighunter.wasm",
+  "capabilities": {
+    "http": {
+      "allow": ["https://raw.githubusercontent.com/xfetch-cli/configs/*"]
+    },
+    "fs": [
+      {
+        "host": "~/.config/xfetch",
+        "guest": "/config",
+        "mode": "rw"
+      }
+    ]
+  },
+  "limits": {
+    "timeout_ms": 300000,
+    "memory_mb": 128,
+    "output_kb": 512,
+    "host_call_kb": 4096
+  }
+}

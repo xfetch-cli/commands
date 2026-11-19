@@ -1,6 +1,7 @@
 [workspace]
 members = [
   "commands/github",
+  "commands/confighunter",
 ]
 resolver = "2"
 

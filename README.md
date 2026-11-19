@@ -11,6 +11,8 @@
 <pre><code class="language-bash">xfetch command install github
 xfetch run github -- rust-lang/rust
 xfetch run github -- https://github.com/rust-lang/rust
+xfetch run confighunter list
+xfetch run confighunter install cyberpunk
 </code></pre>
 
 <p>
