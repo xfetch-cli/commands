@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "catalog_version": "0.1.1",
+  "catalog_version": "0.2.0",
   "entries": [
     {
       "name": "github",
@@ -10,6 +10,16 @@
       "runtime": "core",
       "path": "commands/github",
       "install": "github",
+      "repo": "https://github.com/xfetch-cli/commands.git"
+    },
+    {
+      "name": "confighunter",
+      "description": "Install complete xfetch config presets from xfetch-cli/configs",
+      "version": "0.1.0",
+      "kind": "command",
+      "runtime": "core",
+      "path": "commands/confighunter",
+      "install": "confighunter",
       "repo": "https://github.com/xfetch-cli/commands.git"
     }
   ]
